@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <queue>
+#include <deque>
 #include <map>
 #include <math.h>
 #include <cstring>
@@ -28,10 +28,13 @@ struct process {
      int pid;
      int arrivalTime;
      int burstTime;
+     char status = ' ';
+     int waitTime = 0; // finishTime - arrivalTime - burstTime
+     bool operator<(const a& p2) const { num1 < p2.num1; }
 };
 
 struct vector<process> processList;
-queue<int> readyQueue; // contains pid
+struct queue<process> readyQueue; // contains pid
 
 // read config file
 void readFile(string f) {
@@ -73,10 +76,10 @@ void readFile(string f) {
      }
 }
 
-void printStats(int time, vector<string> stats) {
+void printStats(int time) {
      cout << " " << time << "  ";
-     for(int i = 0; i < stats.size(); i++) {
-          cout<<stats[i] << "     ";
+     for(int i = 0; i < processList.size(); i++) {
+          cout << processList[i].status << "     ";
      }
      cout<<endl;
 }
@@ -119,17 +122,107 @@ int main( const int argc, const char** argv ) {
      cout<<endl<<"--------------------------------------------------------------------------------------------"<<endl;
 
      if (RR) {
-
+          bool occupied == false;
+          int arrival = 0;
+          struct process current;
+          int timeout = 0;
           for(int i = 0; i < totalTime; i++) {
 
+
+               //check for arrivals at time i
+               for(arrival; arrival < processList.size(); arrival ++) {
+                    if(processsList[arrival].arrivalTime == i) {
+                         readyQueue.push_back(processList[arrival]);
+                         processList[arrival].status = '+';
+                    }
+                    if(processsList[arrival].arrivalTime > i) break;
+               }
+
+               if(readyQueue.size() > 0 && !occupied) {
+                    // the currently executing process
+                    current = readyQueue.front();
+                    processList[current.pid - 1].status = '.'
+                    readyQueue.pop_front();
+                    occupied = true;
+               }
+
+               printStats();
+               current.burstTime--;
+
+               if(current.burstTime == 0) {
+                    processList[current.pid - 1].status = ' ';
+                    processList[current.pid - 1].waitTime = (i + 1) - processList[current.pid - 1].burstTime - current.arrivalTime;
+                    occupied = false;
+                    current = NULL;
+               } else if (timeout == quantum - 1) {
+                    // switch processes
+                    readyQueue.push_back(current);
+                    processList[current.pid - 1].status = '+';
+                    occupied = false;
+                    current = NULL;
+               }
+
+               // // if none running find shortest job in readyQueue and execute
+               // if (!occupied) {
+               //      // index in processList is pid - 1
+               //      current = readyQueue.front();
+               //      readyQueue.pop_front();
+               //      processList[current.pid - 1].status = '.';
+               //      occupied = true;
+               // }
+
+               // printStats(i);
+               // current.burstTime--;
+               // if(current.burstTime == 0) {
+               //
+               //      // waitTime = finishTime - burstTime - arrivalTime
+               //      processList[current.pid - 1].status = ' ';
+               //      processList[current.pid - 1].waitTime = (i+1) - proccesList[current.pid - 1].burstTime - current.arrivalTime;
+               //      occupied == false;
+               //      current = NULL;
+               // }
           }
 
      } else if (SJF) {
-
+          bool occupied = false;
+          int arrival = 0;
+          struct process current;
           for(int i = 0; i < totalTime; i++) {
-               // check for new arrivals
-               // sort queue
-               // execute current process
+
+
+               //check for arrivals at time i
+               for(arrival; arrival < processList.size(); arrival ++) {
+                    if(processsList[arrival].arrivalTime == i) {
+                         //push into readyQueue with sorting by burstTime
+                         for(int j = 0; j < readyQueue.size(); j++) {
+                              if (processList[arrival].burstTime < readyQueue.at(j).burstTime) {
+                                   readyQueue.insert(j, processList[arrival]);
+                                   processList[arrival].status = '+';
+                              }
+                         }
+                    }
+                    if(processsList[arrival].arrivalTime > i) break;
+               }
+
+               // if none running find shortest job in readyQueue and execute
+               if (!occupied && readyQueue.size() > 0) {
+                    // index in processList is pid - 1
+                    current = readyQueue.front();
+                    readyQueue.pop_front();
+                    processList[current.pid - 1].status = '.';
+                    occupied = true;
+               }
+
+               printStats(i);
+               current.burstTime--;
+               if(current.burstTime == 0) {
+
+                    // waitTime = finishTime - burstTime - arrivalTime
+                    processList[current.pid - 1].status = ' ';
+                    processList[current.pid - 1].waitTime = (i+1) - proccesList[current.pid - 1].burstTime - current.arrivalTime;
+                    occupied = false;
+                    current = NULL;
+               }
           }
 
      } else {
