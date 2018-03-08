@@ -1,3 +1,24 @@
+/**********************************************
+ * Last Name:   Zhang
+ * First Name:  QiYue
+ * Student ID:  10131658
+ * Course:      CPSC 457
+ * Tutorial:    T05
+ * Assignment:  3
+ * Question:    Q7
+ *
+ * File name: scheduler.cpp
+ * Usage:
+ *   $ ./scheduler filename.txt RR quantum
+ *   $ ./scheduler filename.txt SJF
+ *********************************************/
+
+/// counts number of primes from standard input
+///
+/// compile with:
+///   $ gcc count.cpp -O2 -o count -lm
+///
+
 #include <iostream>
 #include <fstream>
 #include <string>
